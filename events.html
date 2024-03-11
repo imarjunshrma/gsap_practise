@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        div {
+            height: 400px;
+            width: 400px;
+            border: 1px solid red;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- <div class="element">
+
+    </div> -->
+    <input type="tel">
+    <script>
+        const element = document.querySelector("input");
+        console.log(element)
+        const onKeyDown = (event) => console.log(event);
+        // const onInput = (event) => {
+        //     this.value = this.value.replace(/[^0-9.]/g, '');
+
+        //     // If there are multiple decimal points, keep only the first one
+        //     const decimalCount = (this.value.match(/\./g) || []).length;
+        //     if (decimalCount > 1) {
+        //         const indexOfLastDecimal = this.value.lastIndexOf('.');
+        //         this.value = this.value.substring(0, indexOfLastDecimal) + this.value.substring(indexOfLastDecimal + 1);
+        //     }
+        // }
+        // const onKeyPress = () => console.log("keypress");
+        // const onKeyUp = (event) => console.log(event.keyIdentifier);
+        element.addEventListener("keydown", onKeyDown)
+        element.addEventListener("input", function (event) {
+            this.value = this.value.replace(/[^0-9.]/g, '');
+
+            // If there are multiple decimal points, keep only the first one
+            const decimalCount = (this.value.match(/\./g) || []).length;
+            if (decimalCount > 1) {
+                const indexOfLastDecimal = this.value.lastIndexOf('.');
+                this.value = this.value.substring(0, indexOfLastDecimal) + this.value.substring(indexOfLastDecimal + 1);
+            }
+        })
+        // window.addEventListener("keypress", onKeyPress)
+        // window.addEventListener("keyup", onKeyUp)
+
+
+
+
+
+
+    </script>
+</body>
+
+</html>

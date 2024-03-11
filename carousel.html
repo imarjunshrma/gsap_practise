@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carousel</title>
+    <link rel="stylesheet" type="text/css" href="css/main.min.css" />
+
+    <style type="text/css">
+        *,
+        *::after,
+        *::before {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* System Fonts as used by GitHub */
+        body {
+            max-width: 1280px;
+            padding: 60px;
+            margin: 0 auto;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            font-size: 17px;
+            line-height: 1.47059;
+            font-weight: 400;
+            letter-spacing: -0.022em;
+            color: #1d1d1f;
+            font-style: normal;
+        }
+
+        @media screen and (max-width: 767px) {
+            body {
+                padding: 30px;
+            }
+        }
+
+        .card {
+            background-color: #fff;
+        }
+
+        .card__header {
+            padding: 0 0 30px;
+            border-bottom: 1px solid black;
+        }
+
+        .card__heading {
+            font-size: 40px;
+            line-height: 1.1;
+            font-weight: 600;
+            letter-spacing: 0;
+            font-weight: 500;
+            max-width: 70%;
+        }
+
+        .card__desc {
+            margin-top: 16px;
+            max-width: 70%;
+        }
+
+        .card__features {
+            padding: 30px 0;
+            border-bottom: 1px solid black;
+        }
+
+        .card__implementation {
+            padding: 30px 0;
+        }
+
+        .card__features h2,
+        .card__implementation h2 {
+            font-size: 24px;
+            line-height: 1.16667;
+            font-weight: 600;
+            letter-spacing: 0.009em;
+            padding-bottom: 20px;
+        }
+
+        .card__features ul {
+            padding-left: 16px;
+        }
+
+        .card__features li {
+            max-width: 80%;
+        }
+
+        code {
+            padding: 2px 4px;
+            border-radius: 1rem;
+            border: 1px solid lightgray;
+            background-color: #f2f2f2;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        *:focus {
+            outline: 2px solid lightgray;
+            outline-offset: 4px;
+        }
+
+        /* Carousel */
+        .carousel {
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Slide Track */
+        .carousel__track {
+            display: flex;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            scroll-snap-type: x mandatory;
+            cursor: grab;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .carousel__track.-grabbed {
+            cursor: grabbing;
+        }
+
+        .carousel__track::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .carousel__track::-webkit-scrollbar-track {
+            background-color: #f2f2f2;
+        }
+
+        .carousel__track::-webkit-scrollbar-thumb {
+            background-color: #333;
+            cursor: grab;
+        }
+
+        .carousel__track::-webkit-scrollbar-thumb:hover {
+            background-color: #3a3a3a;
+            cursor: grabbing;
+        }
+
+        @keyframes activeSlide {
+            0% {
+                scale: 0;
+            }
+
+            100% {
+                scale: 1;
+            }
+        }
+
+        /* Slide */
+        .carousel__slide {
+            flex: 0 0 100%;
+            padding: 160px 60px;
+            background-color: #ddd;
+            scroll-snap-align: center;
+            opacity: 0;
+            /* display: none; */
+            /* transition: opacity 0.5s ease-in-out; */
+            /* transition: all ease 0.5s; */
+        }
+
+        .carousel__slide[data-active="true"] {
+            opacity: 1;
+            /* display: block; */
+            animation: activeSlide 1s ease;
+        }
+
+        /* Button Styles */
+        .carousel__button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border: none;
+            background-color: #f2f2f2;
+            color: #333;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        /* .carousel__button:hover,
+        .carousel__button:focus {
+            background-color: #ddd;
+        } */
+
+        .carousel__prev {
+            left: 10px;
+        }
+
+        .carousel__next {
+            right: 10px;
+        }
+
+        /* Pill Styles */
+        .carousel__pills {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .carousel__pill {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 24px;
+            height: 24px;
+            border: none;
+            background-color: #f2f2f2;
+            color: #333;
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .carousel__pill[aria-selected="true"] {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .carousel__pill:not(:last-child) {
+            margin-right: 10px;
+        }
+
+        /* Counter Styles */
+        .carousel__counter {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        /* Progress Bar Styles */
+        .carousel__progress {
+            position: relative;
+            width: 100%;
+            height: 2px;
+            background-color: #ddd;
+            overflow: hidden;
+            margin-top: 40px;
+        }
+
+        .carousel__progressBar {
+            width: 0;
+            height: 100%;
+            background-color: #333;
+        }
+
+        button[disabled] {
+            opacity: 0.4;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <header class="card__header">
+            <h1 class="card__heading">Carousel Component</h1>
+            <h2 class="card__desc">A overall carousel with accessibility.</h2>
+        </header>
+        <div class="card__features">
+            <h2>Accessibility Requirements</h2>
+            <ul style="list-style-type: disc">
+                <li>
+                    <strong>Carousel:</strong>
+                    <ul style="list-style-type: circle">
+                        <li>Role: None specified (Consider adding <code>role="region"</code> if the carousel represents
+                            a distinct
+                            section of content)</li>
+                        <li>Accessibility: None specified</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Carousel Track:</strong>
+                    <ul style="list-style-type: circle">
+                        <li>Role: <code>role="list"</code> (to indicate a list of slides)</li>
+                        <li>
+                            Accessibility:
+                            <ul style="list-style-type: decimal">
+                                <li><code>aria-hidden</code> attribute dynamically set for each slide</li>
+                                <li><code>scroll-snap-type</code> property for smooth scrolling</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Carousel Slide:</strong>
+                    <ul style="list-style-type: circle">
+                        <li>Role: <code>role="listitem"</code> (to represent each slide within the list)</li>
+                        <li>Accessibility: <code>aria-hidden</code> attribute dynamically set to indicate the visibility
+                            of the
+                            slide</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Carousel Buttons:</strong>
+                    <ul style="list-style-type: circle">
+                        <li>Role: None specified (Consider adding <code>role="button"</code>)</li>
+                        <li>Accessibility: <code>aria-label</code> attribute to provide a label for screen readers</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Slide Indicators (Pills):</strong>
+                    <ul style="list-style-type: circle">
+                        <li>Role: <code>role="tablist"</code> (to represent the set of slide indicators)</li>
+                        <li>Accessibility: <code>aria-label</code> attribute to provide a label for screen readers</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Individual Slide Indicator (Pill):</strong>
+                    <ul style="list-style-type: circle">
+                        <li>Role: <code>role="tab"</code> (to represent each slide indicator)</li>
+                        <li>
+                            Accessibility:
+                            <ul style="list-style-type: decimal">
+                                <li><code>aria-selected</code> attribute to indicate the selected state</li>
+                                <li><code>aria-controls</code> attribute to associate the slide indicator with its
+                                    corresponding slide
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="card__implementation">
+            <h2>Implementation</h2>
+            <div class="carousel" data-auto-slide-interval="5000">
+                <div class="carousel__track" role="list">
+                    <div class="carousel__slide" role="listitem">
+                        <!-- Content for Slide 1 -->
+                        <p>Content for Slide 1</p>
+                    </div>
+                    <div class="carousel__slide" role="listitem">
+                        <!-- Content for Slide 2 -->
+                        <p>Content for Slide 2</p>
+                    </div>
+                    <div class="carousel__slide" role="listitem">
+                        <!-- Content for Slide 3 -->
+                        <p>Content for Slide 3</p>
+                    </div>
+                    <!-- Add more slides as needed -->
+                </div>
+
+                <!-- Navigation Buttons -->
+                <button class="carousel__button carousel__prev" aria-label="Previous Slide">&lt;</button>
+                <button class="carousel__button carousel__next" aria-label="Next Slide">&gt;</button>
+
+                <!-- Pills (Slide Indicators) -->
+                <div class="carousel__pills" role="tablist" aria-label="Carousel Navigation">
+                    <button class="carousel__pill" role="tab" aria-selected="true" aria-controls="slide1">1</button>
+                    <button class="carousel__pill" role="tab" aria-controls="slide2">2</button>
+                    <button class="carousel__pill" role="tab" aria-controls="slide3">3</button>
+                    <!-- Add more pills as needed -->
+                </div>
+
+                <!-- Counter -->
+                <div class="carousel__counter" aria-live="polite"><span class="carousel__current-slide">1</span> of
+                    <span class="carousel__total-slides">3</span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="carousel__progress" aria-hidden="true">
+                    <div class="carousel__progressBar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <script>
+
+        class Carousel {
+            constructor(element) {
+                this.carouselTrack = element.querySelector(".carousel__track");
+                this.prevButton = element.querySelector(".carousel__prev");
+                this.nextButton = element.querySelector(".carousel__next");
+                this.init();
+                this.utils();
+                this.setupListener();
+                this.count = 0;
+                this.activeSlideIndex = 0;
+
+            }
+            init() {
+                this.slides = this.carouselTrack.querySelectorAll('.carousel__slide');
+                this.slides.forEach((slide, index) => {
+                    slide.dataset.index = index;
+                })
+                this.slides[0].classList.add("active");
+                this.slides[1].classList.add("next");
+                this.prevButton.disabled = true;
+                this.nextButton.disabled = false;
+            }
+            utils() {
+                this.slideWidth = this.carouselTrack.firstElementChild.clientWidth;
+                this.totalchildren = this.carouselTrack.childElementCount;
+                //
+                console.log(this.carouselTrack.offsetWidth, this.carouselTrack.clientWidth, this.carouselTrack.scrollTop, this.carouselTrack.offsetTop)
+                //caculate every width and height for slider
+                const childrens = Array.from(this.carouselTrack.children);
+                childrens.forEach(child => {
+                    console.log(child.offsetWidth, child.clientWidth)
+                })
+            }
+            updateSlidesIndex() {
+                // this.slides[count]
+                this.slides.forEach(slide => {
+                    const index = parseInt(slide.dataset.index);
+                    // if (slide.classList.contains("active")) {
+                    //     slide.classList.remove("active");
+                    // }
+                    if (slide.classList.contains("active")) slide.classList.remove("active");
+                    if (slide.classList.contains("prev")) slide.classList.remove("prev");
+                    if (slide.classList.contains("next")) slide.classList.remove("next");
+                    if (index === this.count) {
+                        slide.classList.add("active");
+                        this.activeSlideIndex = index;
+                    } else if (index === this.count - 1) {
+                        slide.classList.add("prev");
+                    } else if (index === this.count + 1) {
+                        slide.classList.add("next")
+                    }
+                })
+            }
+            updateButtonsState() {
+                //
+                // if(this.activeSlideIndex < 1){
+
+                // }
+                // console.log(this.activeSlideIndex, this.totalchildren - 1, this.activeSlideIndex === this.totalchildren, typeof this.activeSlideIndex, typeof (this.totalchildren - 1))
+                console.log(this.activeSlideIndex)
+                switch (this.activeSlideIndex) {
+                    case 0:
+                        console.log("2")
+                        this.nextButton.disabled = false;
+                        this.prevButton.disabled = true;
+                        break;
+                    case this.totalchildren - 1:
+                        // console.log("2")
+                        this.nextButton.disabled = true;
+                        this.prevButton.disabled = false;
+                        break;
+                    default: this.nextButton.disabled = false;
+                        // console.log("2")
+                        this.prevButton.disabled = false;
+                }
+            }
+            onClick(event) {
+                // console.log(event)
+                const button = event.target;
+                if (button.classList.contains("carousel__prev")) {
+                    this.carouselTrack.scrollLeft = this.carouselTrack.scrollLeft - this.slideWidth;
+                    // console.log("prev...")
+                    this.count -= 1;
+                } else {
+                    // console.log("next...")
+                    this.carouselTrack.scrollLeft = this.slideWidth + this.carouselTrack.scrollLeft;
+                    this.count += 1;
+                    // console.log(this.slideWidth + this.carouselTrack.scrollLeft)
+                }
+            }
+            scroll() {
+                console.log("scroll...")
+                this.updateSlidesIndex();
+                this.updateButtonsState();
+            }
+            setupListener() {
+                this.prevButton.addEventListener("click", this.onClick.bind(this));
+                this.nextButton.addEventListener("click", this.onClick.bind(this));
+                this.carouselTrack.addEventListener("scroll", this.scroll.bind(this));
+            }
+
+        }
+        new Carousel(document.querySelector(".carousel"));
+    </script> -->
+    <script src="carousel.js"></script>
+</body>
+
+</html>
